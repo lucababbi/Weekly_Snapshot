@@ -7,7 +7,6 @@ from Dynamic_Date import Last_Friday
 from Annual_Returns import Annual_Returns
 from Annual_Returns_FX import Annual_Returns_FX
 from Update_Excel import openwb, writewb, savewb
-import xlsxwriter
 
 # Change to your Path
 loc = "/Users/luccababbi/Documents/GitHub/Weekly_Snapshot/Dashboard"
