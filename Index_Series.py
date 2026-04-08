@@ -44,9 +44,7 @@ Index_List = pl.DataFrame(
             "SX5L",
             "SXXL",
             "SX50UL",
-            "SXUSX1L",
-            "SXP1",
-            "STXWAL"
+            "SXUSX1L"
         ],
         "Full_Name": [
             "DAX",
@@ -88,9 +86,7 @@ Index_List = pl.DataFrame(
             "STOXX Europe 50",
             "STOXX Europe 600",
             "STOXX USA 500",
-            "STOXX US Nexus 100",
-            "STOXX Asia/Pacific 600",
-            "STOXX World AC All Cap"
+            "STOXX US Nexus 100"
         ],
         "RIC": [
             ".GDAXI",
@@ -132,9 +128,7 @@ Index_List = pl.DataFrame(
             ".STOXX50D",
             ".STOXXD",
             ".SX50UL",
-            ".SXUSX1L",
-            ".SXP1",
-            ".STXWAL"
+            ".SXUSX1L"
         ]
     }
 )
