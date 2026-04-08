@@ -3,11 +3,13 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import NamedStyle
 from openpyxl.cell.cell import TIME_TYPES  # For date detection
 from dateutil.relativedelta import relativedelta
+from openpyxl.drawing.image import Image
+from openpyxl_image_loader import SheetImageLoader
 import polars as pl
 
 # Update the Excel Dashboard
 def openwb(loc):
-    return load_workbook(f"{loc}/Excel_Dashboard.xlsx")
+    return load_workbook(f"{loc}/Excel_Dashboard.xlsx", data_only=False)
 
 def writewb(wb, df, sheet_name, start_row=1, start_col=1, clear_sheet=False, 
            autofit=True, hide_gridlines=True, date_col="Date"):
@@ -62,9 +64,11 @@ def Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_Li
     writewb(wb, Time_Series.select(pl.col(["Date", ".V2TX", ".V1XI"])).filter(pl.col("Date") >= EDate - relativedelta(months=12)), "1Y_Time_Series_Indices", clear_sheet=True)
     writewb(wb, FX_Series.filter(pl.col("Date") >= EDate - relativedelta(months=1)).with_columns([(100 * pl.col(col) / pl.col(col).first()).alias(col) for col in [col for col in FX_Series.columns if col != "Date"]]), "1M_Time_Series_FX", clear_sheet=True)
 
+    # Create the Worksheet object for the Dashboard
+    Dashboard_WS = wb["Dashboard"]
+    Image_Loader = SheetImageLoader(Dashboard_WS)
 
     # Update specific Cells
-    Dashboard_WS = wb["Dashboard"]
     Dashboard_WS["D8"] = Time_Series.select(pl.col(["Date", ".STOXX50E"])).sort("Date")[".STOXX50E"].tail(1)[0] # EURO STOXX 50
     Dashboard_WS["D9"] = Time_Series.select(pl.col(["Date", ".STOXX50"])).sort("Date")[".STOXX50"].tail(1)[0] # STOXX Europe 50
     Dashboard_WS["D10"] = Time_Series.select(pl.col(["Date", ".STOXX"])).sort("Date")[".STOXX"].tail(1)[0] # STOXX Europe 600
@@ -167,7 +171,6 @@ def Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_Li
     Dashboard_WS["I50"] = Returns_Data.filter(pl.col("Instrument").is_in(Sector)).sort("WoW", descending=False).select(pl.col("3 Year")).row(0)[0] * 100
 
    # FX Performance
-   # EURUSD
    # WoW
     Dashboard_WS["E85"] = FX_Returns.filter(pl.col("Instrument") == "EUR17H=").select(pl.col("WoW")).row(0)[0] * 100
     Dashboard_WS["E86"] = FX_Returns.filter(pl.col("Instrument") == "EURCHF17H=").select(pl.col("WoW")).row(0)[0] * 100
@@ -194,7 +197,6 @@ def Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_Li
     Dashboard_WS["I87"] = FX_Returns.filter(pl.col("Instrument") == "EURGBP17H=").select(pl.col("3 Year")).row(0)[0] * 100
 
     # VIX Performance
-
     # WoW
     Dashboard_WS["E67"] = Returns_Data.filter(pl.col("Instrument") == ".V2TX").select(pl.col("WoW")).row(0)[0] * 100
     Dashboard_WS["E68"] = Returns_Data.filter(pl.col("Instrument") == ".V1XI").select(pl.col("WoW")).row(0)[0] * 100
@@ -211,11 +213,113 @@ def Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_Li
     Dashboard_WS["H67"] = Returns_Data.filter(pl.col("Instrument") == ".V2TX").select(pl.col("1 Year")).row(0)[0] * 100
     Dashboard_WS["H68"] = Returns_Data.filter(pl.col("Instrument") == ".V1XI").select(pl.col("1 Year")).row(0)[0] * 100
 
-
     # 3 Year
     Dashboard_WS["I67"] = Returns_Data.filter(pl.col("Instrument") == ".V2TX").select(pl.col("3 Year")).row(0)[0] * 100
     Dashboard_WS["I68"] = Returns_Data.filter(pl.col("Instrument") == ".V1XI").select(pl.col("3 Year")).row(0)[0] * 100
 
+    # DAX Performance
+    # WoW
+    Dashboard_WS["E18"] = Returns_Data.filter(pl.col("Instrument") == ".GDAXI").select(pl.col("WoW")).row(0)[0] * 100
+    Dashboard_WS["E19"] = Returns_Data.filter(pl.col("Instrument") == ".MDAXI").select(pl.col("WoW")).row(0)[0] * 100
+    Dashboard_WS["E20"] = Returns_Data.filter(pl.col("Instrument") == ".SDAXI").select(pl.col("WoW")).row(0)[0] * 100
+
+    # 1M
+    Dashboard_WS["F18"] = Returns_Data.filter(pl.col("Instrument") == ".GDAXI").select(pl.col("1 Month")).row(0)[0] * 100
+    Dashboard_WS["F19"] = Returns_Data.filter(pl.col("Instrument") == ".MDAXI").select(pl.col("1 Month")).row(0)[0] * 100
+    Dashboard_WS["F20"] = Returns_Data.filter(pl.col("Instrument") == ".SDAXI").select(pl.col("1 Month")).row(0)[0] * 100
+
+    # YTD
+    Dashboard_WS["G18"] = Returns_Data.filter(pl.col("Instrument") == ".GDAXI").select(pl.col("YTD")).row(0)[0] * 100
+    Dashboard_WS["G19"] = Returns_Data.filter(pl.col("Instrument") == ".MDAXI").select(pl.col("YTD")).row(0)[0] * 100
+    Dashboard_WS["G20"] = Returns_Data.filter(pl.col("Instrument") == ".SDAXI").select(pl.col("YTD")).row(0)[0] * 100
+
+    # 1 Year
+    Dashboard_WS["H18"] = Returns_Data.filter(pl.col("Instrument") == ".GDAXI").select(pl.col("1 Year")).row(0)[0] * 100
+    Dashboard_WS["H19"] = Returns_Data.filter(pl.col("Instrument") == ".MDAXI").select(pl.col("1 Year")).row(0)[0] * 100
+    Dashboard_WS["H20"] = Returns_Data.filter(pl.col("Instrument") == ".SDAXI").select(pl.col("1 Year")).row(0)[0] * 100
+
+    # 3 Year
+    Dashboard_WS["I18"] = Returns_Data.filter(pl.col("Instrument") == ".GDAXI").select(pl.col("3 Year")).row(0)[0] * 100
+    Dashboard_WS["I19"] = Returns_Data.filter(pl.col("Instrument") == ".MDAXI").select(pl.col("3 Year")).row(0)[0] * 100
+    Dashboard_WS["I20"] = Returns_Data.filter(pl.col("Instrument") == ".SDAXI").select(pl.col("3 Year")).row(0)[0] * 100
+
+    # STOXX Indices Performance
+    # WoW
+    Dashboard_WS["E8"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX50E").select(pl.col("WoW")).row(0)[0] * 100 # EURO STOXX 50
+    Dashboard_WS["E9"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX50").select(pl.col("WoW")).row(0)[0] * 100 # STOXX Europe 50
+    Dashboard_WS["E10"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX").select(pl.col("WoW")).row(0)[0] * 100 # STOXX Europe 600
+    Dashboard_WS["E11"] = Returns_Data.filter(pl.col("Instrument") == ".SX50UP").select(pl.col("WoW")).row(0)[0] * 100 # STOXX USA 500
+    Dashboard_WS["E12"] = Returns_Data.filter(pl.col("Instrument") == ".SX50UL").select(pl.col("WoW")).row(0)[0] * 100 # STOXX USA 500 USD Price
+    Dashboard_WS["E13"] = Returns_Data.filter(pl.col("Instrument") == ".SXP1").select(pl.col("WoW")).row(0)[0] * 100 # STOXX Asia/Pacific 600
+    Dashboard_WS["E14"] = Returns_Data.filter(pl.col("Instrument") == ".STXWAL").select(pl.col("WoW")).row(0)[0] * 100 # STOXX World AC Universal All Cap
+
+    # 1M
+    Dashboard_WS["F8"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX50E").select(pl.col("1 Month")).row(0)[0] * 100 # EURO STOXX 50
+    Dashboard_WS["F9"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX50").select(pl.col("1 Month")).row(0)[0] * 100 # STOXX Europe 50
+    Dashboard_WS["F10"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX").select(pl.col("1 Month")).row(0)[0] * 100 # STOXX Europe 600
+    Dashboard_WS["F11"] = Returns_Data.filter(pl.col("Instrument") == ".SX50UP").select(pl.col("1 Month")).row(0)[0] * 100 # STOXX USA 500
+    Dashboard_WS["F12"] = Returns_Data.filter(pl.col("Instrument") == ".SX50UL").select(pl.col("1 Month")).row(0)[0] * 100 # STOXX USA 500 USD Price
+    Dashboard_WS["F13"] = Returns_Data.filter(pl.col("Instrument") == ".SXP1").select(pl.col("1 Month")).row(0)[0] * 100 # STOXX Asia/Pacific 600
+    Dashboard_WS["F14"] = Returns_Data.filter(pl.col("Instrument") == ".STXWAL").select(pl.col("1 Month")).row(0)[0] * 100 # STOXX World AC Universal All Cap
+
+    # YTD
+    Dashboard_WS["G8"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX50E").select(pl.col("YTD")).row(0)[0] * 100 # EURO STOXX 50
+    Dashboard_WS["G9"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX50").select(pl.col("YTD")).row(0)[0] * 100 # STOXX Europe 50
+    Dashboard_WS["G10"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX").select(pl.col("YTD")).row(0)[0] * 100 # STOXX Europe 600
+    Dashboard_WS["G11"] = Returns_Data.filter(pl.col("Instrument") == ".SX50UP").select(pl.col("YTD")).row(0)[0] * 100 # STOXX USA 500
+    Dashboard_WS["G12"] = Returns_Data.filter(pl.col("Instrument") == ".SX50UL").select(pl.col("YTD")).row(0)[0] * 100 # STOXX USA 500 USD Price
+    Dashboard_WS["G13"] = Returns_Data.filter(pl.col("Instrument") == ".SXP1").select(pl.col("YTD")).row(0)[0] * 100 # STOXX Asia/Pacific 600
+    Dashboard_WS["G14"] = Returns_Data.filter(pl.col("Instrument") == ".STXWAL").select(pl.col("YTD")).row(0)[0] * 100 # STOXX World AC Universal All Cap
+
+    # 1Y
+    Dashboard_WS["H8"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX50E").select(pl.col("1 Year")).row(0)[0] * 100 # EURO STOXX 50
+    Dashboard_WS["H9"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX50").select(pl.col("1 Year")).row(0)[0] * 100 # STOXX Europe 50
+    Dashboard_WS["H10"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX").select(pl.col("1 Year")).row(0)[0] * 100 # STOXX Europe 600
+    Dashboard_WS["H11"] = Returns_Data.filter(pl.col("Instrument") == ".SX50UP").select(pl.col("1 Year")).row(0)[0] * 100 # STOXX USA 500
+    Dashboard_WS["H12"] = Returns_Data.filter(pl.col("Instrument") == ".SX50UL").select(pl.col("1 Year")).row(0)[0] * 100 # STOXX USA 500 USD Price
+    Dashboard_WS["H13"] = Returns_Data.filter(pl.col("Instrument") == ".SXP1").select(pl.col("1 Year")).row(0)[0] * 100 # STOXX Asia/Pacific 600
+    Dashboard_WS["H14"] = Returns_Data.filter(pl.col("Instrument") == ".STXWAL").select(pl.col("1 Year")).row(0)[0] * 100 # STOXX World AC Universal All Cap
+
+    # 3Y
+    Dashboard_WS["I8"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX50E").select(pl.col("3 Year")).row(0)[0] * 100 # EURO STOXX 50
+    Dashboard_WS["I9"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX50").select(pl.col("3 Year")).row(0)[0] * 100 # STOXX Europe 50
+    Dashboard_WS["I10"] = Returns_Data.filter(pl.col("Instrument") == ".STOXX").select(pl.col("3 Year")).row(0)[0] * 100 # STOXX Europe 600
+    Dashboard_WS["I11"] = Returns_Data.filter(pl.col("Instrument") == ".SX50UP").select(pl.col("3 Year")).row(0)[0] * 100 # STOXX USA 500
+    Dashboard_WS["I12"] = Returns_Data.filter(pl.col("Instrument") == ".SX50UL").select(pl.col("3 Year")).row(0)[0] * 100 # STOXX USA 500 USD Price
+    Dashboard_WS["I13"] = Returns_Data.filter(pl.col("Instrument") == ".SXP1").select(pl.col("3 Year")).row(0)[0] * 100 # STOXX Asia/Pacific 600
+    Dashboard_WS["I14"] = Returns_Data.filter(pl.col("Instrument") == ".STXWAL").select(pl.col("3 Year")).row(0)[0] * 100 # STOXX World AC Universal All Cap
+
+
+    # Check and preserve existing image on Dashboard
+    if not Image_Loader.image_in("C2"):
+        
+        # Embed picture in Dashboard
+        IMG = Image(f"{loc}/Frame.png")
+        IMG.anchor = "C2"  # Position the image at cell C2
+        IMG.width = 890  # Set the width of the image (adjust as needed)
+        IMG.height = 75  # Set the height of the image (adjust as needed)
+        Dashboard_WS.add_image(IMG)
+
+        # Fixed dimensions - image will scale to fit
+        # Set dimensions for ALL columns/rows in merged range
+        Dashboard_WS.column_dimensions["C"].width = 36.33
+        Dashboard_WS.column_dimensions["D"].width = 10
+        Dashboard_WS.column_dimensions["E"].width = 14
+        Dashboard_WS.column_dimensions["F"].width = 11.83
+        Dashboard_WS.column_dimensions["G"].width = 12.33
+        Dashboard_WS.column_dimensions["H"].width = 11.83
+        Dashboard_WS.column_dimensions["I"].width = 11.83
+
+        # Row 2
+        Dashboard_WS.row_dimensions[2].height = 15
+
+    # Autofit remaining columns
+    for col in ["D"]:
+        max_len = 0
+        for cell in Dashboard_WS[col]:
+            if cell.value is not None:
+                max_len = max(max_len, len(str(cell.value)))
+        Dashboard_WS.column_dimensions[col].width = min(max(max_len + 2, 10), 40)  # Add padding, set min/max width
 
     savewb(wb, loc)
 
@@ -230,3 +334,5 @@ def autofit_worksheet(ws, min_width=10, max_width=50, padding=2):
                 max_len = max(max_len, len(str(value)))
 
         ws.column_dimensions[col_letter].width = min(max(max_len + padding, min_width), max_width)
+
+    

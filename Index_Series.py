@@ -150,7 +150,7 @@ def Get_TimeSeries(
 
     try:
         if not session_already_open:
-            ld.open_session()
+            ld.open_session(config_name="lseg-data.config.json")
             opened_here = True
 
         df_raw = ld.get_data(universe=universe, fields=fields, parameters=parameters)

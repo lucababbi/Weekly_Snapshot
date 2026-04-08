@@ -1,0 +1,13 @@
+{
+  "sessions": {
+    "default": "platform.ldp",
+    "platform": {
+      "ldp": {
+        "app-key": "3dd2e9041aef4594a3434536b736a3bf1fab8d89",
+        "username": "luca.babbi@iss-stoxx.com",
+        "password": "xbp@mnw7gad1hwp3AJX",
+        "signon_control": true
+      }
+    }
+  }
+}
