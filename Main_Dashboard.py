@@ -100,6 +100,7 @@ SharePointUploadPDF(PDF_Path = loc + "/Snapshots/" + date.today().strftime("%Y%m
                     Sharepoint_Folder = "/Users/luccababbi/Library/CloudStorage/OneDrive-ISS/Global Benchmarks - Weekly Benchmark Snapshot/Snapshots",
                     username=USER)
 
+# Outlook Email Sender
 OutlookEmail(
     pdf_path=loc + "/Snapshots/" + date.today().strftime("%Y%m%d") + "_Weekly_Benchmarks_Snapshot_" + USER + ".pdf",
     to_emails=[
