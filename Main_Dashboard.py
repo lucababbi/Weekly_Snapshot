@@ -1,4 +1,3 @@
-import polars as pl
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from Index_Series import Index_List, Get_TimeSeries
@@ -7,9 +6,14 @@ from Dynamic_Date import Last_Friday
 from Annual_Returns import Annual_Returns
 from Annual_Returns_FX import Annual_Returns_FX
 from Update_Excel import Update_Excel
+from Sharepoint_Upload import SharePointUpload
+from PDF_Exporter import ExportWeeklySnapshot, SharePointUploadPDF
 
 # Change to your Path
 loc = "/Users/luccababbi/Documents/GitHub/Weekly_Snapshot/Dashboard"
+
+# Users
+USER = "Luca_Babbi"
 
 # Reference Dates
 today = date.today()
@@ -23,6 +27,31 @@ Parameters = dict(
     EDate=EDate.strftime("%Y-%m-%d"),
     Frq="D"
 )
+
+# Array for Sectors
+Sector =[
+    ".SXAP",
+    ".SX7P",
+    ".SXPP",
+    ".SX4P",
+    ".SXOP",
+    ".SXFP",
+    ".SXDP",
+    ".SXNP",
+    ".SXIP",
+    ".SXMP",
+    ".SXEP",
+    ".SX8P",
+    ".SXKP",
+    ".SX6P",
+    ".SXRP",
+    ".SXTP",
+    ".SX86P",
+    ".S600CPP",
+    ".S600ENP",
+    ".S600FOP",
+    ".S600PDP",
+]
 
 # Function to retrieve the Time_Series of all the Indices
 Time_Series = Get_TimeSeries(
@@ -54,32 +83,20 @@ FX_Returns = Annual_Returns_FX(
     Index_Frame=FX_List
     )
 
-# Array for Sectors
-Sector =[
-    ".SXAP",
-    ".SX7P",
-    ".SXPP",
-    ".SX4P",
-    ".SXOP",
-    ".SXFP",
-    ".SXDP",
-    ".SXNP",
-    ".SXIP",
-    ".SXMP",
-    ".SXEP",
-    ".SX8P",
-    ".SXKP",
-    ".SX6P",
-    ".SXRP",
-    ".SXTP",
-    ".SX86P",
-    ".S600CPP",
-    ".S600ENP",
-    ".S600FOP",
-    ".S600PDP",
-]
-
+# Update Excel File with the new data
 if __name__ == "__main__":
     Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_List, EDate, Sector)
 
     print("Update complete!")
+
+# SharePoint Upload
+SharePointUpload(Excel_Path = loc + "/Excel_Dashboard.xlsx", 
+                 Sharepoint_Folder = "/Users/luccababbi/Library/CloudStorage/OneDrive-ISS/Global Benchmarks - Weekly Benchmark Snapshot/Archive")
+
+# PDF Export
+PDF_Export = ExportWeeklySnapshot(loc + "/Excel_Dashboard.xlsx", loc + "/Snapshots", USER)
+SharePointUploadPDF(PDF_Path = loc + "/Snapshots/" + date.today().strftime("%Y%m%d") + "_Weekly_Benchmarks_Snapshot_" + USER + ".pdf", 
+                    Sharepoint_Folder = "/Users/luccababbi/Library/CloudStorage/OneDrive-ISS/Global Benchmarks - Weekly Benchmark Snapshot/Snapshots",
+                    username=USER)
+
+# Outlook Email Sender

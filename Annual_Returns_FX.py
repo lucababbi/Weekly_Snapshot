@@ -11,7 +11,7 @@ def Annual_Returns_FX(
     # Reference Date for Annual Returns
     WoW_Change = EDate - relativedelta(days=7)
     One_Month = EDate - relativedelta(months=1)
-    YTD = Time_Series.filter(pl.col("Date").dt.year() == pl.lit(EDate.year)).sort("Date").head(1)["Date"][0]
+    YTD = Time_Series.filter(pl.col("Date").dt.year() == pl.lit(EDate.year - 1)).sort("Date").tail(1)["Date"][0]
     OneYear = EDate - relativedelta(years=1)
     ThreeYear = EDate - relativedelta(years=3)
 
