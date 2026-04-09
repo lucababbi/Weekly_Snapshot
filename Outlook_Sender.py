@@ -104,6 +104,15 @@ def OutlookEmail(
     end tell
     ''' if send_automatically else ""
 
+    hide_block = '''
+    delay 0.5
+    tell application "System Events"
+        if exists process "Microsoft Outlook" then
+            set visible of process "Microsoft Outlook" to false
+        end if
+    end tell
+    '''
+
     applescript = f'''
                     set pdfFile to POSIX file "{pdf_file_escaped}" as alias
                     set msgSubject to "{subject_escaped}"
@@ -136,6 +145,8 @@ def OutlookEmail(
                     {text_block}
 
                     {send_block}
+
+                    {hide_block}
                     '''
 
     result = subprocess.run(
