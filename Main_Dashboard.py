@@ -8,6 +8,7 @@ from Annual_Returns_FX import Annual_Returns_FX
 from Update_Excel import Update_Excel
 from Sharepoint_Upload import SharePointUpload
 from PDF_Exporter import ExportWeeklySnapshot, SharePointUploadPDF
+from Outlook_Sender import OutlookEmail
 
 # Change to your Path
 loc = "/Users/luccababbi/Documents/GitHub/Weekly_Snapshot/Dashboard"
@@ -99,4 +100,15 @@ SharePointUploadPDF(PDF_Path = loc + "/Snapshots/" + date.today().strftime("%Y%m
                     Sharepoint_Folder = "/Users/luccababbi/Library/CloudStorage/OneDrive-ISS/Global Benchmarks - Weekly Benchmark Snapshot/Snapshots",
                     username=USER)
 
-# Outlook Email Sender
+OutlookEmail(
+    pdf_path=loc + "/Snapshots/" + date.today().strftime("%Y%m%d") + "_Weekly_Benchmarks_Snapshot_" + USER + ".pdf",
+    to_emails=[
+        "luca.babbi@iss-stoxx.com",
+        "yuki.sun@iss-stoxx.com"
+    ],
+    subject=f"Weekly Benchmarks Snapshot - {date.today().strftime('%Y-%m-%d')}",
+    body_text="STOXX & DAX Benchmarks Teams",
+    dpi=300,
+    max_pages=1,
+    send_automatically=True
+)
