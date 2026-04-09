@@ -1,6 +1,6 @@
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
-from openpyxl.styles import NamedStyle
+from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.cell.cell import TIME_TYPES  # For date detection
 from dateutil.relativedelta import relativedelta
 from openpyxl.drawing.image import Image
@@ -69,6 +69,7 @@ def Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_Li
     Image_Loader = SheetImageLoader(Dashboard_WS)
 
     # Update specific Cells
+    Dashboard_WS["C7"] = f"All as of Close " + EDate.strftime("%d/%m/%d") # Update Date in Dashboard
     Dashboard_WS["D8"] = Time_Series.select(pl.col(["Date", ".STOXX50E"])).sort("Date")[".STOXX50E"].tail(1)[0] # EURO STOXX 50
     Dashboard_WS["D9"] = Time_Series.select(pl.col(["Date", ".STOXX50"])).sort("Date")[".STOXX50"].tail(1)[0] # STOXX Europe 50
     Dashboard_WS["D10"] = Time_Series.select(pl.col(["Date", ".STOXX"])).sort("Date")[".STOXX"].tail(1)[0] # STOXX Europe 600
@@ -289,29 +290,18 @@ def Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_Li
     Dashboard_WS["I13"] = Returns_Data.filter(pl.col("Instrument") == ".SXP1E").select(pl.col("3 Year")).row(0)[0] * 100 # STOXX Asia/Pacific 600
     Dashboard_WS["I14"] = Returns_Data.filter(pl.col("Instrument") == ".STXWAP").select(pl.col("3 Year")).row(0)[0] * 100 # STOXX World AC Universal All Cap
 
+    # Fill the top row
+    Dashboard_WS["C2"].fill = PatternFill(
+        start_color="FFA9D2F6",
+        end_color="FFA9D2F6",
+        fill_type="solid"
+    )
 
-    # Check and preserve existing image on Dashboard
-    if not Image_Loader.image_in("C2"):
-        
-        # Embed picture in Dashboard
-        IMG = Image(f"{loc}/Frame.png")
-        IMG.anchor = "C2"  # Position the image at cell C2
-        IMG.width = 890  # Set the width of the image (adjust as needed)
-        IMG.height = 75  # Set the height of the image (adjust as needed)
-        Dashboard_WS.add_image(IMG)
+    Dashboard_WS["C2"] = "📈 Weekly Benchmark Snapshot 📉"
+    Dashboard_WS["C2"].font = Font(color="FF2A4676", bold=True, size=14)
+    Dashboard_WS["C2"].alignment = Alignment(horizontal="center", vertical="center")
 
-        # Fixed dimensions - image will scale to fit
-        # Set dimensions for ALL columns/rows in merged range
-        Dashboard_WS.column_dimensions["C"].width = 36.33
-        Dashboard_WS.column_dimensions["D"].width = 10
-        Dashboard_WS.column_dimensions["E"].width = 14
-        Dashboard_WS.column_dimensions["F"].width = 11.83
-        Dashboard_WS.column_dimensions["G"].width = 12.33
-        Dashboard_WS.column_dimensions["H"].width = 11.83
-        Dashboard_WS.column_dimensions["I"].width = 11.83
-
-        # Row 2
-        Dashboard_WS.row_dimensions[2].height = 15
+    Dashboard_WS.row_dimensions[2].height = 5
 
     # Autofit remaining columns
     for col in ["D"]:

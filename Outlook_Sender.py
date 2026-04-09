@@ -5,7 +5,7 @@ import subprocess
 from PIL import Image, ImageChops
 
 
-def Escape_Applescript_Text(value: str) -> str:
+def Escape_AppleScript_Text(value: str) -> str:
     return (
         value.replace("\\", "\\\\")
              .replace('"', '\\"')
@@ -73,22 +73,22 @@ def OutlookEmail(
 
     img_paths = pdf_to_images(str(pdf_file), dpi=dpi, max_pages=max_pages)
 
-    pdf_file_escaped = Escape_Applescript_Text(str(pdf_file))
-    subject_escaped = Escape_Applescript_Text(subject)
-    body_text_escaped = Escape_Applescript_Text(body_text)
+    pdf_file_escaped = Escape_AppleScript_Text(str(pdf_file))
+    subject_escaped = Escape_AppleScript_Text(subject)
+    body_text_escaped = Escape_AppleScript_Text(body_text)
 
     recipient_lines = "\n".join(
-        f'make new recipient at end of to recipients of newMsg with properties {{email address:{{address:"{Escape_Applescript_Text(email)}"}}}}'
+        f'make new recipient at end of to recipients of newMsg with properties {{email address:{{address:"{Escape_AppleScript_Text(email)}"}}}}'
         for email in to_emails
     )
 
     cc_lines = "\n".join(
-    f'make new recipient at end of cc recipients of newMsg with properties {{email address:{{address:"{Escape_Applescript_Text(email)}"}}}}'
+    f'make new recipient at end of cc recipients of newMsg with properties {{email address:{{address:"{Escape_AppleScript_Text(email)}"}}}}'
     for email in cc_emails
 )
 
-    image_list_applescript = "{" + ", ".join(
-        f'POSIX file "{Escape_Applescript_Text(p)}" as alias' for p in img_paths
+    image_list_AppleScript = "{" + ", ".join(
+        f'POSIX file "{Escape_AppleScript_Text(p)}" as alias' for p in img_paths
     ) + "}"
 
     text_block = '''
@@ -98,7 +98,9 @@ def OutlookEmail(
             set frontmost to true
             key code 36
             key code 36
+            keystroke "b" using (command down)
             keystroke bodyText
+            keystroke "b" using (command down)
         end tell
     end tell
     ''' if body_text else ""
@@ -122,11 +124,11 @@ def OutlookEmail(
     end tell
     '''
 
-    applescript = f'''
+    AppleScript = f'''
                     set pdfFile to POSIX file "{pdf_file_escaped}" as alias
                     set msgSubject to "{subject_escaped}"
                     set bodyText to "{body_text_escaped}"
-                    set imageFiles to {image_list_applescript}
+                    set imageFiles to {image_list_AppleScript}
 
                     tell application "Microsoft Outlook"
                         activate
@@ -160,7 +162,7 @@ def OutlookEmail(
                     '''
 
     result = subprocess.run(
-        ["osascript", "-e", applescript],
+        ["osascript", "-e", AppleScript],
         text=True,
         capture_output=True
     )
