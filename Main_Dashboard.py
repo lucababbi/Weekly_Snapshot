@@ -85,10 +85,7 @@ FX_Returns = Annual_Returns_FX(
     )
 
 # Update Excel File with the new data
-if __name__ == "__main__":
-    Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_List, EDate, Sector)
-
-    print("Update complete!")
+Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_List, EDate, Sector)
 
 # SharePoint Upload
 SharePointUpload(Excel_Path = loc + "/Excel_Dashboard.xlsx", 
@@ -105,11 +102,16 @@ OutlookEmail(
     pdf_path=loc + "/Snapshots/" + date.today().strftime("%Y%m%d") + "_Weekly_Benchmarks_Snapshot_" + USER + ".pdf",
     to_emails=[
         "luca.babbi@iss-stoxx.com",
-        "yuki.sun@iss-stoxx.com"
+        "yuki.sun@iss-stoxx.com",
+        "stoxx-Index-Business@iss-stoxx.com"
     ],
-    subject=f"Weekly Benchmarks Snapshot - {date.today().strftime('%Y-%m-%d')}",
+    cc_emails=[
+        "stoxxstrategy@iss-stoxx.com",
+        "stoxx-DAXStrategy@iss-stoxx.com"
+    ],
+    subject=f"Weekly Benchmarks Snapshot - {date.today().strftime("%Y-%m-%d")}",
     body_text="STOXX & DAX Benchmarks Teams",
     dpi=300,
     max_pages=1,
-    send_automatically=True
+    send_automatically=False
 )

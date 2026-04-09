@@ -5,7 +5,7 @@ import subprocess
 from PIL import Image, ImageChops
 
 
-def escape_applescript_text(value: str) -> str:
+def Escape_Applescript_Text(value: str) -> str:
     return (
         value.replace("\\", "\\\\")
              .replace('"', '\\"')
@@ -54,6 +54,7 @@ def pdf_to_images(pdf_path: str, dpi: int = 200, max_pages: int = 5) -> list[str
 def OutlookEmail(
     pdf_path: str,
     to_emails: list[str] | None = None,
+    cc_emails: list[str] | None = None,
     subject: str = "PDF screenshots",
     body_text: str = "",
     dpi: int = 200,
@@ -63,23 +64,31 @@ def OutlookEmail(
     if to_emails is None:
         to_emails = []
 
+    if cc_emails is None:
+        cc_emails = []
+
     pdf_file = Path(pdf_path).expanduser().resolve()
     if not pdf_file.exists():
         raise FileNotFoundError(f"PDF not found: {pdf_file}")
 
     img_paths = pdf_to_images(str(pdf_file), dpi=dpi, max_pages=max_pages)
 
-    pdf_file_escaped = escape_applescript_text(str(pdf_file))
-    subject_escaped = escape_applescript_text(subject)
-    body_text_escaped = escape_applescript_text(body_text)
+    pdf_file_escaped = Escape_Applescript_Text(str(pdf_file))
+    subject_escaped = Escape_Applescript_Text(subject)
+    body_text_escaped = Escape_Applescript_Text(body_text)
 
     recipient_lines = "\n".join(
-        f'make new recipient at end of to recipients of newMsg with properties {{email address:{{address:"{escape_applescript_text(email)}"}}}}'
+        f'make new recipient at end of to recipients of newMsg with properties {{email address:{{address:"{Escape_Applescript_Text(email)}"}}}}'
         for email in to_emails
     )
 
+    cc_lines = "\n".join(
+    f'make new recipient at end of cc recipients of newMsg with properties {{email address:{{address:"{Escape_Applescript_Text(email)}"}}}}'
+    for email in cc_emails
+)
+
     image_list_applescript = "{" + ", ".join(
-        f'POSIX file "{escape_applescript_text(p)}" as alias' for p in img_paths
+        f'POSIX file "{Escape_Applescript_Text(p)}" as alias' for p in img_paths
     ) + "}"
 
     text_block = '''
@@ -123,6 +132,7 @@ def OutlookEmail(
                         activate
                         set newMsg to make new outgoing message with properties {{subject:msgSubject}}
                         {recipient_lines}
+                        {cc_lines}
                         open newMsg
                     end tell
 
