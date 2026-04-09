@@ -87,6 +87,8 @@ FX_Returns = Annual_Returns_FX(
 # Update Excel File with the new data
 Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_List, EDate, Sector)
 
+print("Dashboard Updated Successfully!")
+
 # SharePoint Upload
 SharePointUpload(Excel_Path = loc + "/Excel_Dashboard.xlsx", 
                  Sharepoint_Folder = "/Users/luccababbi/Library/CloudStorage/OneDrive-ISS/Global Benchmarks - Weekly Benchmark Snapshot/Archive")
@@ -97,20 +99,20 @@ SharePointUploadPDF(PDF_Path = loc + "/Snapshots/" + date.today().strftime("%Y%m
                     Sharepoint_Folder = "/Users/luccababbi/Library/CloudStorage/OneDrive-ISS/Global Benchmarks - Weekly Benchmark Snapshot/Snapshots",
                     username=USER)
 
-# Outlook Email Sender
-OutlookEmail(
-    pdf_path=loc + "/Snapshots/" + date.today().strftime("%Y%m%d") + "_Weekly_Benchmarks_Snapshot_" + USER + ".pdf",
-    to_emails=[
-        "luca.babbi@iss-stoxx.com",
-        "stoxx-Index-Business@iss-stoxx.com"
-    ],
-    cc_emails=[
-        "stoxxstrategy@iss-stoxx.com",
-        "stoxx-DAXStrategy@iss-stoxx.com"
-    ],
-    subject=f"Weekly Benchmarks Snapshot - {date.today().strftime('%Y-%m-%d')}",
-    body_text="STOXX & DAX Benchmarks Teams",
-    dpi=300,
-    max_pages=1,
-    send_automatically=False
-)
+# # Outlook Email Sender
+# OutlookEmail(
+#     pdf_path=loc + "/Snapshots/" + date.today().strftime("%Y%m%d") + "_Weekly_Benchmarks_Snapshot_" + USER + ".pdf",
+#     to_emails=[
+#         "luca.babbi@iss-stoxx.com",
+#         "stoxx-Index-Business@iss-stoxx.com"
+#     ],
+#     cc_emails=[
+#         "stoxxstrategy@iss-stoxx.com",
+#         "stoxx-DAXStrategy@iss-stoxx.com"
+#     ],
+#     subject=f"Weekly Benchmarks Snapshot - {date.today().strftime('%Y-%m-%d')}",
+#     body_text="STOXX & DAX Benchmarks Teams",
+#     dpi=300,
+#     max_pages=1,
+#     send_automatically=False
+# )
