@@ -144,6 +144,7 @@ def Get_TimeSeries(
 
     try:
         if not session_already_open:
+            ld.get_config()["http.request-timeout"] = 240.0
             ld.open_session(config_name="lseg-data.config.json")
             opened_here = True
 

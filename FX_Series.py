@@ -27,6 +27,7 @@ def Get_TimeSeriesFX(
 
     try:
         if not session_already_open:
+            ld.get_config()["http.request-timeout"] = 240.0
             ld.open_session()
             opened_here = True
 

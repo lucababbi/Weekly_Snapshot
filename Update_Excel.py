@@ -298,7 +298,7 @@ def Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_Li
     )
 
     Dashboard_WS["C2"] = "📈 Weekly Benchmarks Snapshot 📉"
-    Dashboard_WS["C2"].font = Font(color="FF2A4676", bold=True, size=14)
+    Dashboard_WS["C2"].font = Font(color="FF2A4676", bold=True, size=20)
     Dashboard_WS["C2"].alignment = Alignment(horizontal="center", vertical="center")
 
     Dashboard_WS.row_dimensions[2].height = 5
