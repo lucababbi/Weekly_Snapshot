@@ -19,7 +19,7 @@ USER = "Luca_Babbi"
 # Reference Dates
 today = date.today()
 EDate = Last_Friday(today)
-EDate = date(2026, 4, 3) # For Testing Purposes
+# EDate = date(2026, 4, 3) # For Testing Purposes
 SDate = EDate - relativedelta(months=36)
 
 # Parameters for Time_Series

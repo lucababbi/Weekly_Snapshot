@@ -5,6 +5,7 @@ from openpyxl.cell.cell import TIME_TYPES  # For date detection
 from dateutil.relativedelta import relativedelta
 from openpyxl.drawing.image import Image
 from openpyxl_image_loader import SheetImageLoader
+from openpyxl.drawing.spreadsheet_drawing import OneCellAnchor, AnchorMarker
 import polars as pl
 
 # Update the Excel Dashboard
@@ -290,16 +291,16 @@ def Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_Li
     Dashboard_WS["I13"] = Returns_Data.filter(pl.col("Instrument") == ".SXP1E").select(pl.col("3 Year")).row(0)[0] * 100 # STOXX Asia/Pacific 600
     Dashboard_WS["I14"] = Returns_Data.filter(pl.col("Instrument") == ".STXWAP").select(pl.col("3 Year")).row(0)[0] * 100 # STOXX World AC Universal All Cap
 
+    Dashboard_WS["C2"] = "📈 Weekly Benchmarks Snapshot 📉"
+    Dashboard_WS["C2"].font = Font(color="FF2A4676", bold=True, size=20)
+    Dashboard_WS["C2"].alignment = Alignment(horizontal="center", vertical="center")
+    
     # Fill the top row
     Dashboard_WS["C2"].fill = PatternFill(
         start_color="FFA9D2F6",
         end_color="FFA9D2F6",
         fill_type="solid"
     )
-
-    Dashboard_WS["C2"] = "📈 Weekly Benchmarks Snapshot 📉"
-    Dashboard_WS["C2"].font = Font(color="FF2A4676", bold=True, size=20)
-    Dashboard_WS["C2"].alignment = Alignment(horizontal="center", vertical="center")
 
     Dashboard_WS.row_dimensions[2].height = 5
 
