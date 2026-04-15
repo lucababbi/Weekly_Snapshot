@@ -1,3 +1,4 @@
+import os
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import PatternFill, Font, Alignment
@@ -7,6 +8,7 @@ from openpyxl.drawing.image import Image
 from openpyxl_image_loader import SheetImageLoader
 from openpyxl.drawing.spreadsheet_drawing import OneCellAnchor, AnchorMarker
 import polars as pl
+image_path = os.getcwd()+ "/Dashboard/Frame.png"
 
 # Update the Excel Dashboard
 def openwb(loc):
@@ -49,6 +51,33 @@ def savewb(wb, loc):
     wb.save(f"{loc}/Excel_Dashboard.xlsx")
     wb.close()
 
+def range_pixel_size(ws, start_col, end_col, start_row, end_row):
+    # Approximate conversion
+    col_pixels = 0
+    for col in range(start_col, end_col + 1):
+        col_letter = chr(64 + col)
+        width = ws.column_dimensions[col_letter].width or 8.43
+        col_pixels += int(width * 7)  # Excel heuristic
+
+    row_pixels = 0
+    for row in range(start_row, end_row + 1):
+        height = ws.row_dimensions[row].height or 15
+        row_pixels += int(height * 1.33)
+
+    return col_pixels, row_pixels
+
+def insert_image_into_range(ws, image_path, top_left_cell, start_col, end_col, start_row, end_row):
+    img = Image(image_path)
+
+    width_px, height_px = range_pixel_size(
+        ws, start_col, end_col, start_row, end_row
+    )
+
+    img.width = width_px
+    img.height = height_px
+
+    ws.add_image(img, top_left_cell)
+
 def Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_List, EDate, Sector):
 
     wb = openwb(loc)
@@ -68,9 +97,19 @@ def Update_Excel(loc, Time_Series, FX_Series, Returns_Data, FX_Returns, Index_Li
     # Create the Worksheet object for the Dashboard
     Dashboard_WS = wb["Dashboard"]
     Image_Loader = SheetImageLoader(Dashboard_WS)
+    Dashboard_WS = wb["Dashboard"]
+
+    # insert_image_into_range(
+    #     ws=Dashboard_WS,
+    #     image_path=image_path,   # <-- your image
+    #     top_left_cell="C2",
+    #     start_col=3,  # C
+    #     end_col=11,    # I
+    #     start_row=2,
+    #     end_row=4)
 
     # Update specific Cells
-    Dashboard_WS["C7"] = f"All as of Close " + EDate.strftime("%d/%m/%d") # Update Date in Dashboard
+    Dashboard_WS["C7"] = f"All as of Close " + EDate.strftime("%d/%m/%Y") # Update Date in Dashboard
     Dashboard_WS["D8"] = Time_Series.select(pl.col(["Date", ".STOXX50E"])).sort("Date")[".STOXX50E"].tail(1)[0] # EURO STOXX 50
     Dashboard_WS["D9"] = Time_Series.select(pl.col(["Date", ".STOXX50"])).sort("Date")[".STOXX50"].tail(1)[0] # STOXX Europe 50
     Dashboard_WS["D10"] = Time_Series.select(pl.col(["Date", ".STOXX"])).sort("Date")[".STOXX"].tail(1)[0] # STOXX Europe 600

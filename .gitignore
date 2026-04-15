@@ -1,6 +1,7 @@
 *.10
 *.ps1
 *.csh
+.venv/
 .venv/bin/activate
 .venv/bin/activate.fish
 .venv/bin/f2py

@@ -59,7 +59,7 @@ def OutlookEmail(
     body_text: str = "",
     dpi: int = 200,
     max_pages: int = 1,
-    send_automatically: bool = True,
+    send_automatically: bool = False,
 ):
     if to_emails is None:
         to_emails = []
@@ -104,7 +104,7 @@ def OutlookEmail(
         end tell
     end tell
     ''' if body_text else ""
-
+    
     send_block = '''
     delay 2
     tell application "System Events"
@@ -123,7 +123,7 @@ def OutlookEmail(
         end if
     end tell
     '''
-
+    
     AppleScript = f'''
                     set pdfFile to POSIX file "{pdf_file_escaped}" as alias
                     set msgSubject to "{subject_escaped}"
@@ -176,3 +176,4 @@ def OutlookEmail(
         "stderr": result.stderr,
         "images_used": img_paths,
     }
+

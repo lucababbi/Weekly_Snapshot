@@ -1,5 +1,8 @@
 import polars as pl
 import lseg.data as ld
+import warnings
+warnings.filterwarnings('ignore')
+ld.open_session(config_name= "lseg-data.config.json")
 
 # FX_List
 FX_List = pl.DataFrame(
@@ -27,8 +30,7 @@ def Get_TimeSeriesFX(
 
     try:
         if not session_already_open:
-            ld.get_config()["http.request-timeout"] = 240.0
-            ld.open_session()
+            ld.open_session(config_name= "lseg-data.config.json")
             opened_here = True
 
         df_raw = ld.get_data(universe=universe, fields=fields, parameters=parameters)
