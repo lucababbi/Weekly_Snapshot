@@ -14,13 +14,13 @@ from constants import SECTOR_INDICES
 loc = os.getcwd()+ "/Dashboard"
 
 # Sharepoint locations
-Archive_path = "/Users/yukesun/Library/CloudStorage/OneDrive-ISS/02_Tasks/10_Weekly_Benchmark_Update/Archive"
-PDF_Path = "/Users/yukesun/Library/CloudStorage/OneDrive-ISS/02_Tasks/10_Weekly_Benchmark_Update/Snapshots"
+Archive_path = "/Users/luccababbi/Library/CloudStorage/OneDrive-ISS/Global Benchmarks - Weekly Benchmark Snapshot/Archive"
+PDF_Path = "/Users/luccababbi/Library/CloudStorage/OneDrive-ISS/Global Benchmarks - Weekly Benchmark Snapshot/Snapshots"
 if_update = True
 
 # Users 
 #!! please change your refinitiv credentials in lseg-data.config.json !!
-USER = "Yuke_Sun"
+USER = "Luca_Babbi"
 
 # Reference Dates
 today = date.today()
@@ -34,8 +34,6 @@ Parameters = dict(
     EDate=EDate.strftime("%Y-%m-%d"),
     Frq="D"
 )
-
-
 
 # Update Excel File with the new data
 if __name__ == "__main__":
